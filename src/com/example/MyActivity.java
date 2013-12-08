@@ -9,8 +9,6 @@ import android.widget.*;
 import org.htmlcleaner.TagNode;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MyActivity extends Activity {
@@ -18,15 +16,16 @@ public class MyActivity extends Activity {
     //Диалог ожидания
     private ProgressDialog processDialog;
 
-    private EditText textForSearch;
+    private EditText editTextForSearch;
     private Button searchButton;
+    private String textForSearch;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        textForSearch = (EditText) findViewById(R.id.text);
+        editTextForSearch = (EditText) findViewById(R.id.text);
         searchButton = (Button)findViewById(R.id.parse);
         searchButton.setOnClickListener(myListener);
     }
@@ -37,38 +36,36 @@ public class MyActivity extends Activity {
         public void onClick(View v) {
             //Показать диалог ожидания
             processDialog = ProgressDialog.show(MyActivity.this, "Working...", "request to server", true, false);
+            textForSearch = editTextForSearch.getText().toString().replaceAll(" ", "%20");
             //Запустить парсинг
-            new ParseSite().execute("http://www.google.com.tj/search?q=" + textForSearch.getText().toString());
+            new ParseSite().execute("http://www.google.com.tj/search?q=" + textForSearch);
         }
     };
 
-    private class ParseSite extends AsyncTask<String, Void, List<String>> {
+    private class ParseSite extends AsyncTask<String, Void, String> {
         //Фоновая операция
-        protected List<String> doInBackground(String... params) {
-            List<String> listOfUrls = new ArrayList<String>();
+        protected String doInBackground(String... params) {
+            String url = "";
             try {
                 ParseHTML hh = new ParseHTML(new URL(params[0]));
-                List<TagNode> TagNodes = hh.getLinksByClass();
-                for (TagNode tagNode : TagNodes) {
-                    TagNode divElement = tagNode;
-                    listOfUrls.add(divElement.getAttributeByName("href"));
-                }
+                TagNode tagNode = hh.getLinkFromPage();
+                url = tagNode.getAttributeByName("href");
+
             } catch(Exception e) {
                 e.printStackTrace();
             }
-            return listOfUrls;
+            return url;
         }
 
         //Событие по окончанию парсинга
-        protected void onPostExecute(List<String> listOfUrls) {
+        protected void onPostExecute(String url) {
             //Убрать диалог загрузки
             processDialog.dismiss();
 
-            ListView listView = (ListView) findViewById(R.id.listViewData);
+            TextView textView = (TextView) findViewById(R.id.textViewData);
 
-            //Загрузить в listView результат работы doInBackground
-            listView.setAdapter(new ArrayAdapter<String>(MyActivity.this,
-                    android.R.layout.simple_list_item_1, listOfUrls));
+            //Загрузить в TextView результат работы doInBackground
+            textView.setText(url);
         }
     }
 }

@@ -24,9 +24,9 @@
             android:text="Получить данные">
     </Button>
 
-    <ListView android:id="@+id/listViewData"
+    <TextView android:id="@+id/textViewData"
               android:layout_height="wrap_content"
               android:layout_width="match_parent">
-    </ListView>
+    </TextView>
 
 </LinearLayout>

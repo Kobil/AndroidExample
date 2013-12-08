@@ -28,13 +28,8 @@ public class ParseHTML {
             rootNode = htmlCleaner.clean(htmlPage);
         }
 
-        public List<TagNode> getLinksByClass() throws XPatherException {
-            //Выбираем все ссылки
-            List<TagNode> linkElements = new ArrayList <TagNode>();
-            Object[] tagNodes = rootNode.evaluateXPath(".//h3/a");
-            for(Object tagNode : tagNodes){
-                linkElements.add((TagNode)tagNode);
-            }
-            return linkElements;
+        public TagNode getLinkFromPage() throws XPatherException {
+            Object tagNode = rootNode.evaluateXPath(".//h3/a")[0];
+            return (TagNode)tagNode;
         }
 }
